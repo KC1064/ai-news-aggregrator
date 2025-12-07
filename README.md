@@ -74,16 +74,6 @@ uv run python -m app.services.process_curator
 uv run python -m app.services.process_email
 ```
 
-## Deployment
-
-The project is configured for deployment on Render.com:
-
-1. **Database**: PostgreSQL service (auto-configured)
-2. **Cron Job**: Scheduled daily execution via `render.yaml`
-3. **Environment**: Automatically detected as PRODUCTION when `DATABASE_URL` contains "render.com" (no manual setting needed)
-
-See `RENDER_SETUP.md` for detailed deployment instructions.
-
 ### Docker
 
 Build and run:

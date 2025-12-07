@@ -1,7 +1,7 @@
 from app.daily_runner import run_daily_pipeline
 
 
-def main(hours: int = 200, top_n: int = 10):
+def main(hours: int = 24, top_n: int = 10):
     return run_daily_pipeline(hours=hours, top_n=top_n)
 
 

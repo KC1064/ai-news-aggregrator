@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel, Field
 from .base import BaseAgent
-
+from google.genai import types
 
 class RankedArticle(BaseModel):
     digest_id: str = Field(description="The ID of the digest (article_type:article_id)")
@@ -37,7 +37,7 @@ Rank articles from most relevant (rank 1) to least relevant. Ensure each article
 
 class CuratorAgent(BaseAgent):
     def __init__(self, user_profile: dict):
-        super().__init__("gpt-4.1")
+        super().__init__("gemini-2.5-flash")
         self.user_profile = user_profile
         self.system_prompt = self._build_system_prompt()
 
@@ -75,16 +75,21 @@ Preferences:
 Provide a relevance score (0.0-10.0) and rank (1-{len(digests)}) for each article, ordered from most to least relevant."""
 
         try:
-            response = self.client.responses.parse(
+            response = self.client.models.generate_content(
                 model=self.model,
-                instructions=self.system_prompt,
-                temperature=0.3,
-                input=user_prompt,
-                text_format=RankedDigestList
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=self.system_prompt,
+                    temperature=0.3,
+                    response_mime_type="application/json",
+                    response_schema=RankedDigestList
+                )
             )
             
-            ranked_list = response.output_parsed
+            ranked_list = RankedDigestList.model_validate_json(response.text)
             return ranked_list.articles if ranked_list else []
         except Exception as e:
             print(f"Error ranking digests: {e}")
-            return []
+            return []    
+        
+    

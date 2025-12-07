@@ -11,26 +11,6 @@ This project aggregates AI news from multiple sources:
 - **Curation**: Ranks articles by relevance to user profile using LLM
 - **Delivery**: Sends personalized daily email digests
 
-## Architecture
-
-```mermaid
-graph LR
-    A[Sources<br/>YouTube<br/>RSS Feeds] --> B[Scrapers<br/>BaseScraper<br/>Registry Pattern]
-    B --> C[(Database<br/>PostgreSQL)]
-    C --> D[Processors<br/>Markdown<br/>Transcripts<br/>Digests]
-    D --> C
-    C --> E[Curator<br/>LLM Ranking]
-    E --> F[Email<br/>Personalized Digest]
-    F --> G[Delivery<br/>Gmail SMTP]
-    
-    style A fill:#e1f5ff
-    style B fill:#fff4e1
-    style C fill:#e8f5e9,stroke:#4caf50,stroke-width:3px
-    style D fill:#fff4e1
-    style E fill:#f3e5f5
-    style F fill:#f3e5f5
-    style G fill:#ffe1f5
-```
 
 ## How It Works
 
@@ -68,133 +48,7 @@ The `run_daily_pipeline()` function orchestrates all steps:
 - Creates digests
 - Sends email
 
-## Project Structure
 
-```
-app/
-├── agent/              # LLM agents for processing
-│   ├── base.py        # Base agent class
-│   ├── curator_agent.py   # Article ranking
-│   ├── digest_agent.py    # Summary generation
-│   └── email_agent.py     # Email content generation
-├── config.py          # Configuration (YouTube channels)
-├── database/          # Database layer
-│   ├── models.py      # SQLAlchemy models
-│   ├── repository.py # Data access layer
-│   └── connection.py  # DB connection & environment
-├── profiles/          # User profile configuration
-│   └── user_profile.py
-├── scrapers/          # Content scrapers
-│   ├── base.py        # Base scraper for RSS feeds
-│   ├── anthropic.py   # Anthropic RSS scraper
-│   ├── openai.py      # OpenAI RSS scraper
-│   └── youtube.py     # YouTube channel scraper
-├── services/          # Processing services
-│   ├── base.py        # Base process service
-│   ├── process_anthropic.py
-│   ├── process_youtube.py
-│   ├── process_digest.py
-│   ├── process_curator.py
-│   ├── process_email.py
-│   └── email.py       # Email sending
-├── daily_runner.py    # Main pipeline orchestrator
-└── runner.py          # Scraper registry & execution
-```
-
-## Adding New Scrapers
-
-### RSS Feed Scraper (Easiest)
-
-Create a new file in `app/scrapers/`:
-
-```python
-from typing import List
-from .base import BaseScraper, Article
-
-class MyArticle(Article):
-    pass
-
-class MyScraper(BaseScraper):
-    @property
-    def rss_urls(self) -> List[str]:
-        return ["https://example.com/feed.xml"]
-
-    def get_articles(self, hours: int = 24) -> List[MyArticle]:
-        return [MyArticle(**a.model_dump()) for a in super().get_articles(hours)]
-```
-
-Then register it in `app/runner.py`:
-
-```python
-from .scrapers.my_scraper import MyScraper
-
-def _save_my_articles(scraper, repo, hours):
-    return _save_rss_articles(scraper, repo, hours, repo.bulk_create_my_articles)
-
-SCRAPER_REGISTRY = [
-    # ... existing scrapers
-    ("my_source", MyScraper(), _save_my_articles),
-]
-```
-
-### Custom Scraper
-
-For non-RSS sources, inherit from the base pattern:
-
-```python
-class CustomScraper:
-    def get_articles(self, hours: int = 24) -> List[Article]:
-        # Your custom scraping logic
-        pass
-```
-
-## Setup
-
-### Prerequisites
-
-- Python 3.12+
-- PostgreSQL database
-- OpenAI API key
-- Gmail app password (for email sending)
-- Webshare proxy credentials (optional, for YouTube transcript fetching)
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   uv sync
-   ```
-
-3. Configure environment variables (copy `app/example.env` to `.env`):
-   ```bash
-   OPENAI_API_KEY=your_key
-   MY_EMAIL=your_email@gmail.com
-   APP_PASSWORD=your_gmail_app_password
-   DATABASE_URL=postgresql://user:pass@host:port/db
-   ENVIRONMENT=LOCAL  # Optional: auto-detected from DATABASE_URL if contains "render.com"
-   
-   # Optional: Webshare Proxy (for YouTube transcript fetching)
-   # Get credentials from https://www.webshare.io/
-   WEBSHARE_USERNAME=your_username
-   WEBSHARE_PASSWORD=your_password
-   ```
-   
-   **Note**: Webshare proxy is optional. If not provided, YouTube transcript fetching will work without a proxy but may be rate-limited.
-
-4. Initialize database:
-   ```bash
-   uv run python -m app.database.create_tables
-   ```
-   
-   Or check database connection:
-   ```bash
-   uv run python -m app.database.check_connection
-   ```
-
-5. Configure YouTube channels in `app/config.py`
-
-6. Update user profile in `app/profiles/user_profile.py`
 
 ### Running
 
@@ -221,8 +75,6 @@ uv run python -m app.services.process_email
 ```
 
 ## Deployment
-
-### Render.com
 
 The project is configured for deployment on Render.com:
 
@@ -260,6 +112,3 @@ docker run --env-file .env ai-news-aggregator
 - **youtube-transcript-api**: Video transcripts
 - **UV**: Package management
 
-## License
-
-MIT

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
+from google.genai import types
 from .base import BaseAgent
 
 
@@ -59,7 +60,7 @@ Keep it concise (2-3 sentences for the introduction), friendly, and professional
 
 class EmailAgent(BaseAgent):
     def __init__(self, user_profile: dict):
-        super().__init__("gpt-4o-mini")
+        super().__init__("gemini-2.5-flash")  # or "gemini-1.5-pro" or "gemini-1.5-flash"
         self.user_profile = user_profile
 
     def generate_introduction(self, ranked_articles: List) -> EmailIntroduction:
@@ -84,15 +85,18 @@ Top 10 ranked articles:
 Generate a greeting and introduction that previews these articles."""
 
         try:
-            response = self.client.responses.parse(
+            response = self.client.models.generate_content(
                 model=self.model,
-                instructions=EMAIL_PROMPT,
-                temperature=0.7,
-                input=user_prompt,
-                text_format=EmailIntroduction
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=EMAIL_PROMPT,
+                    temperature=0.7,
+                    response_mime_type="application/json",
+                    response_schema=EmailIntroduction
+                )
             )
             
-            intro = response.output_parsed
+            intro = EmailIntroduction.model_validate_json(response.text)
             if not intro.greeting.startswith(f"Hey {self.user_profile['name']}"):
                 intro.greeting = f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}."
             
@@ -124,4 +128,3 @@ Generate a greeting and introduction that previews these articles."""
             total_ranked=total_ranked,
             top_n=limit
         )
-

@@ -16,6 +16,7 @@ class AnthropicArticle(BaseModel):
 
 class AnthropicScraper:
     def __init__(self):
+        # rss feed for anthropic
         self.rss_urls = [
             "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml",
             "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_research.xml",
@@ -63,7 +64,12 @@ class AnthropicScraper:
             return None
 
 if __name__ == "__main__":
+    
     scraper = AnthropicScraper()
+    
     articles: List[AnthropicArticle] = scraper.get_articles(hours=100)
-    markdown: str = scraper.url_to_markdown(articles[1].url)
+
+    markdown: str = scraper.url_to_markdown(articles[0].url)
     print(markdown)
+    print(len(articles))
+

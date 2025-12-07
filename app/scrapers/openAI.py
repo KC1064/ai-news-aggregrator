@@ -1,3 +1,4 @@
+#%%
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import feedparser
@@ -45,8 +46,16 @@ class OpenAIScraper:
                 ))
         
         return articles
-
+    
+    # OpenAI doesn't allows scraping 
+    # def url_to_markdown(self, url: str) -> Optional[str]:
+    #     try:
+    #         result = self.converter.convert(url)
+    #         return result.document.export_to_markdown()
+    #     except Exception:
+    #         return None
   
 if __name__ == "__main__":
     scraper = OpenAIScraper()
-    articles: List[OpenAIArticle] = scraper.get_articles(hours=50)
+    articles: List[OpenAIArticle] = scraper.get_articles(hours=250)
+    print(len(articles))

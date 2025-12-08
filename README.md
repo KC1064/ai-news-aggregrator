@@ -6,7 +6,7 @@ An intelligent news aggregation system that scrapes AI-related content from mult
 
 This project aggregates AI news from multiple sources:
 - **YouTube Channels**: Scrapes videos and transcripts from configured channels
-- **RSS Feeds**: Monitors OpenAI and Anthropic blog posts
+- **RSS Feeds**: Monitors Gemini and Anthropic blog posts
 - **Processing**: Converts content to markdown, generates summaries, and creates digests
 - **Curation**: Ranks articles by relevance to user profile using LLM
 - **Delivery**: Sends personalized daily email digests
@@ -86,7 +86,7 @@ docker run --env-file .env ai-news-aggregator
 
 - **Modular Architecture**: Base classes make it easy to extend
 - **Scraper Registry**: Add new sources with minimal code
-- **LLM-Powered**: Uses OpenAI for summarization and curation
+- **LLM-Powered**: Uses Gemini for summarization and curation
 - **Personalized**: User profile-based ranking
 - **Duplicate Prevention**: Tracks sent digests
 - **Environment Aware**: Supports LOCAL and PRODUCTION environments
@@ -97,7 +97,7 @@ docker run --env-file .env ai-news-aggregator
 - **PostgreSQL**: Database
 - **SQLAlchemy**: ORM
 - **Pydantic**: Data validation
-- **OpenAI API**: LLM processing
+- **Gemini API**: LLM processing
 - **feedparser**: RSS parsing
 - **youtube-transcript-api**: Video transcripts
 - **UV**: Package management
